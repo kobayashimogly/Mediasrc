@@ -1,24 +1,35 @@
 from flask import Flask, render_template, request, redirect, session, url_for
-import sqlite3
+import psycopg2
+import os
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key'
+app.secret_key = 'your-secret-key'  # 任意の秘密鍵でOK
 
-# データベース初期化
+# PostgreSQL接続
+def get_db_connection():
+    return psycopg2.connect(
+        dbname=os.environ.get("DB_NAME"),
+        user=os.environ.get("DB_USER"),
+        password=os.environ.get("DB_PASSWORD"),
+        host=os.environ.get("DB_HOST"),
+        port=os.environ.get("DB_PORT", "5432")
+    )
+
+# 初回だけテーブル作成（ローカルで1回動かすかpsqlで実行してね）
 def init_db():
-    conn = sqlite3.connect('data.db')
-    c = conn.cursor()
-    c.execute('''
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS sources (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             media TEXT,
             article_id TEXT,
             title TEXT,
             source TEXT,
             created_at TEXT
         )
-    ''')
+    """)
     conn.commit()
     conn.close()
 
@@ -33,10 +44,12 @@ def form():
         source = request.form.get("source")
         created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        conn = sqlite3.connect("data.db")
-        c = conn.cursor()
-        c.execute("INSERT INTO sources (media, article_id, title, source, created_at) VALUES (?, ?, ?, ?, ?)",
-                  (media, article_id, title, source, created_at))
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO sources (media, article_id, title, source, created_at)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (media, article_id, title, source, created_at))
         conn.commit()
         conn.close()
 
@@ -50,17 +63,23 @@ def history():
     latest = []
     searched = False
 
-    conn = sqlite3.connect("data.db")
-    c = conn.cursor()
+    conn = get_db_connection()
+    cur = conn.cursor()
 
     if request.method == "POST":
         article_id = request.form.get("article_id")
-        c.execute("SELECT media, article_id, title, source, created_at, id FROM sources WHERE article_id = ?", (article_id,))
-        results = c.fetchall()
+        cur.execute("""
+            SELECT media, article_id, title, source, created_at, id
+            FROM sources WHERE article_id = %s
+        """, (article_id,))
+        results = cur.fetchall()
         searched = True
     else:
-        c.execute("SELECT media, article_id, title, source, created_at, id FROM sources ORDER BY id DESC LIMIT 10")
-        latest = c.fetchall()
+        cur.execute("""
+            SELECT media, article_id, title, source, created_at, id
+            FROM sources ORDER BY id DESC LIMIT 10
+        """)
+        latest = cur.fetchall()
 
     conn.close()
     return render_template("history.html", results=results, searched=searched, latest=latest)
@@ -68,13 +87,14 @@ def history():
 @app.route("/delete", methods=["POST"])
 def delete():
     delete_id = request.form.get("delete_id")
-    conn = sqlite3.connect("data.db")
-    c = conn.cursor()
-    c.execute("DELETE FROM sources WHERE id = ?", (delete_id,))
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM sources WHERE id = %s", (delete_id,))
     conn.commit()
     conn.close()
     return redirect("/history")
 
+# ログイン関連
 def is_logged_in():
     return session.get("authenticated") == True
 
@@ -97,7 +117,5 @@ def login():
     return render_template("login.html", error=error)
 
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
