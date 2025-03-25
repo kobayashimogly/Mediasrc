@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, url_for
 import psycopg2
 import os
 from datetime import datetime
+from flask import jsonify
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'  # 任意の秘密鍵でOK
