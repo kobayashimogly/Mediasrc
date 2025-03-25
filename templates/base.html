@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Mediasrc{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+
+  <!-- ✅ サイドバーはここだけに書く -->
+  <div class="w-64 bg-white shadow-md p-6">
+    <h2 class="text-xl font-bold mb-6">メニュー</h2>
+    <ul class="space-y-4 text-gray-700">
+      <li><a href="/form" class="hover:text-blue-500 font-semibold">📄 ソース保存</a></li>
+      <li><a href="/history" class="hover:text-blue-500">📚 ソース履歴</a></li>
+      <li><a href="/diff" class="hover:text-blue-500">🟡 diff【ディフ】</a></li>
+      <li><a href="/highlight" class="hover:text-blue-500">🟨 黄色下線ツール</a></li>
+      <li><a href="/article-master" class="hover:text-blue-500">📄 記事最強</a></li>
+      <li><a href="/js-ad" class="hover:text-blue-500">📢 JS広告</a></li>
+      <li><a href="/ad-creator" class="hover:text-blue-500">📢 記事内広告作成</a></li>
+    </ul>
+  </div>
+
+  <!-- ✅ ページごとの中身 -->
+  <div class="flex-1 p-10">
+    {% block content %}{% endblock %}
+  </div>
+
+</body>
+</html>

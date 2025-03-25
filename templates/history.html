@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}ソース履歴検索{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">ソース履歴検索</h1>
+
+<!-- 検索フォーム -->
+<form method="POST" class="mb-8">
+  <label class="block font-medium mb-2">検索するIDを入力:</label>
+  <input type="text" name="article_id" class="border border-gray-300 rounded p-2 w-64" required>
+  <button type="submit" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">検索</button>
+</form>
+
+<!-- 検索結果 -->
+{% if searched %}
+  <h2 class="text-xl font-bold mb-4">検索結果</h2>
+  {% if results %}
+    {% for row in results %}
+      {% include "history_item.html" with context %}
+    {% endfor %}
+  {% else %}
+    <p class="text-red-600 mb-10">該当するデータが見つかりませんでした。</p>
+  {% endif %}
+{% endif %}
+
+<!-- 直近10件 -->
+<h2 class="text-xl font-bold mt-12 mb-4">直近10件の履歴</h2>
+{% for row in latest %}
+  {% include "history_item.html" with context %}
+{% endfor %}
+
+<!-- 削除モーダル -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white p-6 rounded shadow-lg w-full max-w-md">
+    <h2 class="text-xl font-bold mb-4">本当に削除しますか？</h2>
+    <p class="text-gray-600 mb-6">この操作は取り消せません。</p>
+    <form method="POST" action="/delete">
+      <input type="hidden" name="delete_id" id="delete_id_input">
+      <div class="flex justify-end space-x-3">
+        <button type="button" onclick="closeModal()" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">キャンセル</button>
+        <button type="submit" class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600">削除する</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleSource(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle("hidden");
+  }
+
+  function copyToClipboard(inputId) {
+    const input = document.getElementById(inputId);
+    navigator.clipboard.writeText(input.value);
+    showToast("タイトルをコピーしました！");
+  }
+
+  function copySourceText(textId) {
+    const text = document.getElementById(textId).innerText;
+    navigator.clipboard.writeText(text);
+    showToast("ソースをコピーしました！");
+  }
+
+  function openModal(deleteId) {
+    document.getElementById("delete_id_input").value = deleteId;
+    document.getElementById("deleteModal").classList.remove("hidden");
+  }
+
+  function closeModal() {
+    document.getElementById("deleteModal").classList.add("hidden");
+  }
+
+  function showToast(message) {
+    const toast = document.createElement("div");
+    toast.className = "fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-fade";
+    toast.innerText = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.remove();
+    }, 2000);
+  }
+</script>
+
+<style>
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade {
+    animation: fade 0.3s ease-in-out;
+  }
+</style>
+{% endblock %}
