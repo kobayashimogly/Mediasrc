@@ -1,30 +1,30 @@
+<!-- templates/base.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}ツール管理画面{% endblock %}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="{{ url_for('static', filename='css/tailwind.min.css') }}" rel="stylesheet">
+  <title>{% block title %}Mediasrc Tool{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 min-h-screen flex">
 
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-gray-800 text-white p-4 space-y-2">
-      <h1 class="text-xl font-bold mb-6">🧰 小林ツール</h1>
-      <a href="/form" class="block hover:bg-gray-700 px-4 py-2 rounded">📄 ソース保存</a>
-      <a href="/history" class="block hover:bg-gray-700 px-4 py-2 rounded">📚 ソース履歴</a>
-      <a href="/diff" class="block hover:bg-gray-700 px-4 py-2 rounded">🧪 diff【ディフ】</a>
-      <a href="/highlight" class="block hover:bg-gray-700 px-4 py-2 rounded">🟨 黄色下線ツール</a>
-      <a href="/article-master" class="block hover:bg-gray-700 px-4 py-2 rounded">📑 記事最強</a>
-      <a href="/js-ad" class="block hover:bg-gray-700 px-4 py-2 rounded">📢 JS広告</a>
-      <a href="/ad-creator" class="block hover:bg-gray-700 px-4 py-2 rounded">🎯 記事内広告作成</a>
-    </aside>
+  <!-- ✅ サイドバー -->
+  <div class="w-64 bg-white shadow-md p-6">
+    <h2 class="text-xl font-bold mb-6">メニュー</h2>
+    <ul class="space-y-4 text-gray-700">
+      <li><a href="/form" class="hover:text-blue-500 font-semibold">📝 ソース保存</a></li>
+      <li><a href="/history" class="hover:text-blue-500">📚 ソース履歴</a></li>
+      <li><a href="/diff" class="hover:text-blue-500">🧪 diff【ディフ】</a></li>
+      <li><a href="/highlight" class="hover:text-blue-500">🟨 黄色下線ツール</a></li>
+      <li><a href="/article-master" class="hover:text-blue-500">📑 記事最強</a></li>
+      <li><a href="/js-ad" class="hover:text-blue-500">📢 JS広告</a></li>
+      <li><a href="/ad-creator" class="hover:text-blue-500">🎯 記事内広告作成</a></li>
+    </ul>
+  </div>
 
-    <!-- Main Content -->
-    <main class="flex-1 p-8 overflow-y-auto">
-      {% block content %}{% endblock %}
-    </main>
+  <!-- ✅ 各ページの中身はここ -->
+  <div class="flex-1 p-10">
+    {% block content %}{% endblock %}
   </div>
 
 </body>
