@@ -40,6 +40,8 @@ def form():
     if request.method == "POST":
         media = request.form.get("media")
         article_id = request.form.get("article_id")
+        sp_rank = request.form.get("sp_rank")
+        pc_rank = request.form.get("pc_rank")
         title = request.form.get("title")
         source = request.form.get("source")
         created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -47,9 +49,9 @@ def form():
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO sources (media, article_id, title, source, created_at)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (media, article_id, title, source, created_at))
+            INSERT INTO sources (media, article_id, title, source, created_at, sp_rank, pc_rank)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (media, article_id, title, source, created_at, sp_rank, pc_rank))
         conn.commit()
         conn.close()
 
@@ -73,15 +75,17 @@ def history():
     if request.method == "POST":
         article_id = request.form.get("article_id")
         cur.execute("""
-            SELECT media, article_id, title, source, created_at, id
-            FROM sources WHERE article_id = %s
+            SELECT media, article_id, title, source, created_at, id, sp_rank, pc_rank
+            FROM sources
+            WHERE article_id = %s
         """, (article_id,))
         results = cur.fetchall()
         searched = True
     else:
         cur.execute("""
-            SELECT media, article_id, title, source, created_at, id
-            FROM sources ORDER BY id DESC LIMIT 10
+            SELECT media, article_id, title, source, created_at, id, sp_rank, pc_rank
+            FROM sources
+            ORDER BY id DESC LIMIT 10
         """)
         latest = cur.fetchall()
 
