@@ -5,11 +5,23 @@
 <h1 class="text-2xl font-bold mb-6">ソース履歴検索</h1>
 
 <!-- 検索フォーム -->
-<form method="POST" class="mb-8">
-  <label class="block font-medium mb-2">検索するIDを入力:</label>
-  <input type="text" name="article_id" class="border border-gray-300 rounded p-2 w-64" required>
-  <button type="submit" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">検索</button>
+<form method="POST" class="mb-8 flex items-end space-x-4">
+  <div>
+    <label class="block font-medium mb-2">検索するIDを入力:</label>
+    <input type="text" name="article_id" class="border border-gray-300 rounded p-2 w-64" required>
+  </div>
+  <div>
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-6">検索</button>
+  </div>
 </form>
+
+<!-- グラフ -->
+{% if searched and results %}
+  <div class="mb-10 bg-white p-6 rounded shadow">
+    <h2 class="text-lg font-bold mb-4">順位推移グラフ</h2>
+    <canvas id="rankChart" height="100"></canvas>
+  </div>
+{% endif %}
 
 <!-- 検索結果 -->
 {% if searched %}
@@ -44,7 +56,56 @@
   </div>
 </div>
 
+<!-- スクリプト -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  {% if searched and results %}
+    const articleId = "{{ results[0][1] }}";
+    fetch(`/api/rank_history/${articleId}`)
+      .then(res => res.json())
+      .then(data => {
+        const labels = data.history.map(item => item.created_at);
+        const spData = data.history.map(item => item.sp_rank);
+        const pcData = data.history.map(item => item.pc_rank);
+
+        new Chart(document.getElementById("rankChart"), {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "SP順位",
+                data: spData,
+                borderColor: "green",
+                tension: 0.3,
+                borderWidth: 2
+              },
+              {
+                label: "PC順位",
+                data: pcData,
+                borderColor: "blue",
+                tension: 0.3,
+                borderWidth: 2
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                reverse: true,
+                title: {
+                  display: true,
+                  text: "順位（小さいほど上位）"
+                }
+              }
+            }
+          }
+        });
+      });
+  {% endif %}
+
+  // その他のUI系スクリプト
   function toggleSource(id) {
     const el = document.getElementById(id);
     el.classList.toggle("hidden");
@@ -76,10 +137,7 @@
     toast.className = "fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg animate-fade";
     toast.innerText = message;
     document.body.appendChild(toast);
-
-    setTimeout(() => {
-      toast.remove();
-    }, 2000);
+    setTimeout(() => { toast.remove(); }, 2000);
   }
 </script>
 
