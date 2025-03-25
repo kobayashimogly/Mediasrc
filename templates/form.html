@@ -20,12 +20,26 @@
       <option value="Digmedia">Digmedia</option>
     </select>
   </div>
-
+  
   <div>
     <label class="block font-medium">ID:</label>
     <input type="text" name="article_id" required class="mt-1 block w-full border border-gray-300 rounded p-2">
   </div>
 
+  <div class="flex space-x-4">
+    <!-- SP順位 -->
+    <div class="flex-1">
+      <label class="block font-medium">SP順位（数字のみ）:</label>
+      <input type="number" name="sp_rank" min="1" placeholder="例: 3" required class="mt-1 w-full border border-gray-300 rounded p-2">
+    </div>
+  
+    <!-- PC順位 -->
+    <div class="flex-1">
+      <label class="block font-medium">PC順位（数字のみ）:</label>
+      <input type="number" name="pc_rank" min="1" placeholder="例: 5" required class="mt-1 w-full border border-gray-300 rounded p-2">
+    </div>
+  </div>
+    
   <div>
     <label class="block font-medium">タイトル:</label>
     <input type="text" name="title" required class="mt-1 block w-full border border-gray-300 rounded p-2">
