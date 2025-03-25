@@ -84,3 +84,10 @@ function displaySideBySideDiff(diff, originalContainer, modifiedContainer) {
         modifiedContainer.appendChild(modifiedSpan);
     });
 }
+// ページが読み込まれたら自動で初期化
+document.addEventListener("DOMContentLoaded", () => {
+  const content = document.getElementById("content");
+  if (content) {
+    loadAddiffTool(content);
+  }
+});
