@@ -144,6 +144,26 @@ def highlight():
 def article_master():
     return render_template("article_master.html")
 
+@app.route("/api/rank_history/<article_id>")
+def rank_history(article_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT created_at, sp_rank, pc_rank
+        FROM sources
+        WHERE article_id = %s
+        ORDER BY created_at
+    """, (article_id,))
+    rows = cur.fetchall()
+    conn.close()
+
+    history = [
+        {"created_at": row[0], "sp_rank": row[1], "pc_rank": row[2]}
+        for row in rows
+        if row[1] is not None or row[2] is not None
+    ]
+    return {"history": history}
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
