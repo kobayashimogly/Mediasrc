@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}ツール管理画面{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="{{ url_for('static', filename='css/tailwind.min.css') }}" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-800 text-white p-4 space-y-2">
+      <h1 class="text-xl font-bold mb-6">🧰 小林ツール</h1>
+      <a href="/form" class="block hover:bg-gray-700 px-4 py-2 rounded">📄 ソース保存</a>
+      <a href="/history" class="block hover:bg-gray-700 px-4 py-2 rounded">📚 ソース履歴</a>
+      <a href="/diff" class="block hover:bg-gray-700 px-4 py-2 rounded">🧪 diff【ディフ】</a>
+      <a href="/highlight" class="block hover:bg-gray-700 px-4 py-2 rounded">🟨 黄色下線ツール</a>
+      <a href="/article-master" class="block hover:bg-gray-700 px-4 py-2 rounded">📑 記事最強</a>
+      <a href="/js-ad" class="block hover:bg-gray-700 px-4 py-2 rounded">📢 JS広告</a>
+      <a href="/ad-creator" class="block hover:bg-gray-700 px-4 py-2 rounded">🎯 記事内広告作成</a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 overflow-y-auto">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+</body>
+</html>

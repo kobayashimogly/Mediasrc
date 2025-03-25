@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}diff【ディフ】{% endblock %}
+
+{% block content %}
+  <h2 class="text-2xl font-bold mb-4">diff【ディフ】</h2>
+  <div id="content"></div>
+  <script src="https://cdn.jsdelivr.net/npm/diff/dist/diff.min.js"></script>
+  <script src="{{ url_for('static', filename='scripts/diff.js') }}"></script>
+{% endblock %}
