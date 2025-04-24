@@ -3,6 +3,8 @@ import psycopg2
 import os
 from datetime import datetime
 from flask import jsonify
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'  # 任意の秘密鍵でOK
@@ -10,11 +12,11 @@ app.secret_key = 'your-secret-key'  # 任意の秘密鍵でOK
 # PostgreSQL接続
 def get_db_connection():
     return psycopg2.connect(
-        dbname=os.environ.get("DB_NAME"),
-        user=os.environ.get("DB_USER"),
-        password=os.environ.get("DB_PASSWORD"),
-        host=os.environ.get("DB_HOST"),
-        port=os.environ.get("DB_PORT", "5432")
+        dbname=os.environ.get("SUPABASE_DB_NAME"),
+        user=os.environ.get("SUPABASE_DB_USER"),
+        password=os.environ.get("SUPABASE_DB_PASSWORD"),
+        host=os.environ.get("SUPABASE_DB_HOST"),
+        port=os.environ.get("SUPABASE_DB_PORT", "5432")
     )
 
 # 初回だけテーブル作成（ローカルで1回動かすかpsqlで実行してね）
