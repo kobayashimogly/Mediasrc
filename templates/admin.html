@@ -1,0 +1,32 @@
+<!-- templates/admin.html -->
+{% extends "base.html" %}
+{% block title %}管理者ページ{% endblock %}
+
+{% block content %}
+  {% if not session.is_admin %}
+    <h1 class="text-2xl font-bold mb-4">管理者ログイン</h1>
+    {% if error %}
+      <p class="text-red-500 mb-4">{{ error }}</p>
+    {% endif %}
+    <form method="POST">
+      <input type="password" name="admin_password" placeholder="パスワード" class="border p-2 rounded mr-2">
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">ログイン</button>
+    </form>
+  {% else %}
+    <h1 class="text-2xl font-bold mb-4">CSV管理メニュー</h1>
+    <a href="/admin/logout" class="text-blue-500 underline block mb-4">ログアウト</a>
+
+    <div class="mb-6">
+      <h2 class="font-semibold mb-2">CSVダウンロード</h2>
+      <a href="/admin/download" class="bg-green-500 text-white px-4 py-2 rounded">ダウンロード</a>
+    </div>
+
+    <div>
+      <h2 class="font-semibold mb-2">CSVアップロード</h2>
+      <form method="POST" action="/admin/upload" enctype="multipart/form-data">
+        <input type="file" name="csv_file" accept=".csv" class="mb-2">
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">アップロード</button>
+      </form>
+    </div>
+  {% endif %}
+{% endblock %}
