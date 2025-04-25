@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, send_file
+import csv
+import io
 import psycopg2
 import os
 from datetime import datetime
@@ -8,6 +10,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'  # 任意の秘密鍵でOK
+ADMIN_PASSWORD = "your-admin-password"
 
 # PostgreSQL接続
 def get_db_connection():
@@ -166,6 +169,75 @@ def rank_history(article_id):
         if row[1] is not None or row[2] is not None
     ]
     return {"history": history}
+
+# 管理画面
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    error = None
+    if request.method == "POST":
+        password = request.form.get("admin_password")
+        if password == "mogly":  # パスワードは適宜変更してください
+            session["is_admin"] = True
+            return redirect("/admin")
+        else:
+            error = "パスワードが違います"
+    return render_template("admin.html", error=error)
+
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop("is_admin", None)
+    return redirect("/admin")
+
+@app.route("/admin/download")
+def download_csv():
+    if not session.get("is_admin"):
+        return redirect("/admin")
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT media, article_id, title, source, created_at, sp_rank, pc_rank FROM sources")
+    rows = cur.fetchall()
+    conn.close()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["media", "article_id", "title", "source", "created_at", "sp_rank", "pc_rank"])
+    writer.writerows(rows)
+    output.seek(0)
+
+    return send_file(io.BytesIO(output.getvalue().encode("utf-8")),
+                    mimetype="text/csv",
+                    as_attachment=True,
+                    download_name="sources.csv")
+
+@app.route("/admin/upload", methods=["POST"])
+def upload_csv():
+    if not session.get("is_admin"):
+        return redirect("/admin")
+
+    file = request.files.get("csv_file")
+    if not file:
+        return redirect("/admin")
+
+    stream = io.StringIO(file.stream.read().decode("utf-8"))
+    reader = csv.DictReader(stream)
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    for row in reader:
+        cur.execute("""
+            INSERT INTO sources (media, article_id, title, source, created_at, sp_rank, pc_rank)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (
+            row["media"], row["article_id"], row["title"], row["source"],
+            row["created_at"], row.get("sp_rank"), row.get("pc_rank")
+        ))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/admin")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
