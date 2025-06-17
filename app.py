@@ -33,7 +33,10 @@ def init_db():
             article_id TEXT,
             title TEXT,
             source TEXT,
-            created_at TEXT
+            created_at TEXT,
+            sp_rank TEXT,
+            pc_rank TEXT,
+            note TEXT
         )
     """)
     conn.commit()
@@ -50,17 +53,17 @@ def form():
         pc_rank = request.form.get("pc_rank")
         title = request.form.get("title")
         source = request.form.get("source")
+        note = request.form.get("note")
         created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO sources (media, article_id, title, source, created_at, sp_rank, pc_rank)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (media, article_id, title, source, created_at, sp_rank, pc_rank))
+            INSERT INTO sources (media, article_id, title, source, created_at, sp_rank, pc_rank, note)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """, (media, article_id, title, source, created_at, sp_rank, pc_rank, note))
         conn.commit()
         conn.close()
-
         return render_template("form.html", message="保存完了！")
     
     return render_template("form.html", message="")
@@ -81,7 +84,7 @@ def history():
     if request.method == "POST":
         article_id = request.form.get("article_id")
         cur.execute("""
-            SELECT media, article_id, title, source, created_at, id, sp_rank, pc_rank
+            SELECT media, article_id, title, source, created_at, id, sp_rank, pc_rank, note
             FROM sources
             WHERE article_id = %s
         """, (article_id,))
@@ -89,7 +92,7 @@ def history():
         searched = True
     else:
         cur.execute("""
-            SELECT media, article_id, title, source, created_at, id, sp_rank, pc_rank
+            SELECT media, article_id, title, source, created_at, id, sp_rank, pc_rank, note
             FROM sources
             ORDER BY id DESC LIMIT 10
         """)
@@ -195,13 +198,13 @@ def download_csv():
 
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT media, article_id, title, source, created_at, sp_rank, pc_rank FROM sources")
+    cur.execute("SELECT media, article_id, title, source, created_at, sp_rank, pc_rank, note FROM sources")
     rows = cur.fetchall()
     conn.close()
 
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["media", "article_id", "title", "source", "created_at", "sp_rank", "pc_rank"])
+    writer.writerow(["media", "article_id", "title", "source", "created_at", "sp_rank", "pc_rank", "note"])
     writer.writerows(rows)
     output.seek(0)
 
@@ -227,13 +230,12 @@ def upload_csv():
 
     for row in reader:
         cur.execute("""
-            INSERT INTO sources (media, article_id, title, source, created_at, sp_rank, pc_rank)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (
+            INSERT INTO sources (media, article_id, title, source, created_at, sp_rank, pc_rank, note)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
             row["media"], row["article_id"], row["title"], row["source"],
-            row["created_at"], row.get("sp_rank"), row.get("pc_rank")
+            row["created_at"], row.get("sp_rank"), row.get("pc_rank"), row.get("note")
         ))
-
     conn.commit()
     conn.close()
 
