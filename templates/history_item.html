@@ -1,37 +1,39 @@
 <div class="bg-white p-4 rounded shadow mb-4">
-    <div class="flex justify-between items-center">
-      <div>
-        <p class="text-gray-500 text-sm">
-          {{ row[4] }} ｜ {{ row[0] }} ｜ ID: {{ row[1] }}
-          <br>
-          <span class="text-green-600 font-semibold">SP順位: {{ row[6] or "–" }}</span> ／ 
-          <span class="text-blue-600 font-semibold">PC順位: {{ row[7] or "–" }}</span>
-        </p>
-        <p class="text-lg font-bold mt-1">{{ row[2] }}</p>
-      </div>
-      <div class="space-x-2">
-        <button onclick="copyToClipboard('title-{{ row[5] }}')" class="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">
-          タイトルをコピー
-        </button>
-        <button onclick="toggleSource('source-{{ row[5] }}')" class="text-sm bg-blue-100 px-3 py-1 rounded hover:bg-blue-200">
-          詳細
-        </button>
-        <form method="POST" action="/delete" style="display:inline;" onsubmit="confirmDelete(event)">
-          <input type="hidden" name="delete_id" value="{{ row[5] }}">
-          <button type="button" onclick="openModal('{{ row[5] }}')" class="text-sm bg-red-100 px-3 py-1 rounded hover:bg-red-200">
-            削除
-          </button>
-        </form>
-      </div>
+  <div class="flex justify-between items-center">
+    <div>
+      <p class="text-gray-500 text-sm">
+        {{ row[4] }} ｜ {{ row[0] }} ｜ ID: {{ row[1] }}
+        <br>
+        <span class="text-green-600 font-semibold">SP順位: {{ row[6] or "–" }}</span> ／ 
+        <span class="text-blue-600 font-semibold">PC順位: {{ row[7] or "–" }}</span>
+      </p>
+      <p class="text-lg font-bold mt-1">{{ row[2] }}</p>
+      {% if row[8] %}
+        <p class="text-sm text-gray-600 mt-1">備考: {{ row[8] }}</p>
+      {% endif %}
     </div>
-  
-    <div id="source-{{ row[5] }}" class="mt-4 hidden bg-gray-50 p-3 rounded text-sm text-gray-700 relative">
-      <pre class="whitespace-pre-wrap" id="source-text-{{ row[5] }}">{{ row[3] }}</pre>
-      <button onclick="copySourceText('source-text-{{ row[5] }}')" class="absolute top-2 right-2 text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300">
-        ソースをコピー
+    <div class="space-x-2">
+      <button onclick="copyToClipboard('title-{{ row[5] }}')" class="text-sm bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">
+        タイトルをコピー
       </button>
+      <button onclick="toggleSource('source-{{ row[5] }}')" class="text-sm bg-blue-100 px-3 py-1 rounded hover:bg-blue-200">
+        詳細
+      </button>
+      <form method="POST" action="/delete" style="display:inline;" onsubmit="confirmDelete(event)">
+        <input type="hidden" name="delete_id" value="{{ row[5] }}">
+        <button type="button" onclick="openModal('{{ row[5] }}')" class="text-sm bg-red-100 px-3 py-1 rounded hover:bg-red-200">
+          削除
+        </button>
+      </form>
     </div>
-  
-    <input type="hidden" id="title-{{ row[5] }}" value="{{ row[2] }}">
   </div>
-  
+
+  <div id="source-{{ row[5] }}" class="mt-4 hidden bg-gray-50 p-3 rounded text-sm text-gray-700 relative">
+    <pre class="whitespace-pre-wrap" id="source-text-{{ row[5] }}">{{ row[3] }}</pre>
+    <button onclick="copySourceText('source-text-{{ row[5] }}')" class="absolute top-2 right-2 text-xs bg-gray-200 px-2 py-1 rounded hover:bg-gray-300">
+      ソースをコピー
+    </button>
+  </div>
+
+  <input type="hidden" id="title-{{ row[5] }}" value="{{ row[2] }}">
+</div>
